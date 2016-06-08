@@ -1,4 +1,4 @@
-from API import Command
+from .api import Command
 
 
 class HelpCommand(Command):

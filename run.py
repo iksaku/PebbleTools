@@ -1,5 +1,5 @@
-from API import *
-from Commands import *
+from src.commands import *
+from src.api import *
 
 main = Main()
 main.commandMap.register_commands({
