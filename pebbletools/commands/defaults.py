@@ -34,7 +34,7 @@ class PingCommand(Command):
         super(PingCommand, self).__init__(main, "ping", "Pings your Pebble watch")
 
     def run(self, args=list):
-        self.main.do_ping()
+        self.main.utils.do_ping()
 
 
 class StopCommand(Command):
@@ -59,4 +59,4 @@ class TimeCommand(Command):
                 print "Setting time to: " + time.asctime()
                 print "Offset: " + args[0]
                 print "Time Zone name: " + args[1]
-                self.main.update_time(int(args[0]), args[1])
+                self.main.utils.update_time(int(args[0]), args[1])
