@@ -1,4 +1,5 @@
-from .api import Command
+from pebbletools.commands import Command
+import time
 
 
 class HelpCommand(Command):
@@ -14,7 +15,7 @@ class HelpCommand(Command):
                 cmd = commands.get(cmd_name)
                 if isinstance(cmd, Command):
                     message.append("Description: " + cmd.description)
-                    message.append("Usage: " + cmd.name + " " + cmd.usage)
+                    message.append(cmd.get_usage())
                     message.append("Help for command '" + cmd.name + "'")
                 else:
                     message = "Unknown command '" + cmd_name + "'"
@@ -33,7 +34,7 @@ class PingCommand(Command):
         super(PingCommand, self).__init__(main, "ping", "Pings your Pebble watch")
 
     def run(self, args=list):
-        self.main.pebble.do_ping()
+        self.main.do_ping()
 
 
 class StopCommand(Command):
@@ -43,3 +44,19 @@ class StopCommand(Command):
     def run(self, args=list):
         print "Quitting..."
         self.main.stop()
+
+
+class TimeCommand(Command):
+    def __init__(self, main):
+        super(TimeCommand, self).__init__(
+            main, "time", "Updates your pebble's time", "<time difference with UTC> <time zone name>")
+
+    def run(self, args=list):
+        if isinstance(args, list):
+            if len(args) < 2:
+                print self.get_usage()
+            else:
+                print "Setting time to: " + time.asctime()
+                print "Offset: " + args[0]
+                print "Time Zone name: " + args[1]
+                self.main.update_time(int(args[0]), args[1])
