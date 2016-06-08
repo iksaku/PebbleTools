@@ -6,8 +6,6 @@ import logging
 import os.path
 import time
 
-__author__ = "iksaku"
-
 
 class Pebble(object):
     def __init__(self, main):
