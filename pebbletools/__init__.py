@@ -10,7 +10,7 @@ import os.path
 
 
 class Utils(object):
-    _handler = PebbleConnection
+    handler = PebbleConnection
 
     def __init__(self, main):
         self.main = main
@@ -25,10 +25,6 @@ class Utils(object):
             print "Could not connect to Pebble"
             print "Trying '" + str(type(self.main.transport)) + "' on port '" + self.main.port + "'"
             exit(1)
-
-    @property
-    def get_pebble(self):
-        return self._handler
 
     def do_ping(self):
         try:
