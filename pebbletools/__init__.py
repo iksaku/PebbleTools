@@ -89,7 +89,6 @@ class Main(object):
             elif "debug_enabled" in key:
                 value = bool(value)
             setattr(self, key, value)
-            print value
         config.close()
 
         self.utils = Utils(main=self)
