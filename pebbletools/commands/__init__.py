@@ -6,6 +6,7 @@ class Command(object):
 
     def __init__(self, main, name, description, usage=""):
         self.main = main
+        self.utils = main.utils
         self.name = name
         self.description = description
         self.usage = usage

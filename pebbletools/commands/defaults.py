@@ -29,12 +29,21 @@ class HelpCommand(Command):
         print message
 
 
+class MusicTestCommand(Command):
+    def __init__(self, main):
+        super(MusicTestCommand, self).__init__(main, "musictest", "Fills sample data for Pebble's Music App")
+
+    def run(self, args=list):
+        print "Filling sample data to Music app..."
+        self.utils.music_information("iksaku", "MusicTestCommand", "PebbleTools", (1*60 + 34)*1000, 15, 1)
+
+
 class PingCommand(Command):
     def __init__(self, main):
         super(PingCommand, self).__init__(main, "ping", "Pings your Pebble watch")
 
     def run(self, args=list):
-        self.main.utils.do_ping()
+        self.utils.do_ping()
 
 
 class StopCommand(Command):
@@ -59,4 +68,4 @@ class TimeCommand(Command):
                 print "Setting time to: " + time.asctime()
                 print "Offset: " + args[0]
                 print "Time Zone name: " + args[1]
-                self.main.utils.update_time(int(args[0]), args[1])
+                self.utils.update_time(int(args[0]), args[1])
