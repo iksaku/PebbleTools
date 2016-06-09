@@ -10,14 +10,14 @@ import os.path
 
 
 class Utils(object):
-    handler = PebbleConnection
+    _handler = PebbleConnection
 
     def __init__(self, main):
         self.main = main
         try:
             log = logging.DEBUG if self.main.debug_enabled else None
             self.handler = PebbleConnection(
-                transport=self.main.transport(self.main.port), log_protocol_level=log, log_packet_level=log)
+                transport=self.main.transport(self.main.get_port), log_protocol_level=log, log_packet_level=log)
 
             self.handler.connect()
             self.handler.run_async()
@@ -25,6 +25,10 @@ class Utils(object):
             print "Could not connect to Pebble"
             print "Trying '" + str(type(self.main.transport)) + "' on port '" + self.main.port + "'"
             exit(1)
+
+    @property
+    def get_pebble(self):
+        return self._handler
 
     def do_ping(self):
         try:
@@ -48,9 +52,10 @@ class Utils(object):
 
 
 class Main(object):
+    _running = True
     port = ""
     debug_enabled = False
-    default_commands = {
+    _default_commands = {
         HelpCommand,
         PingCommand,
         MusicTestCommand,
@@ -88,12 +93,20 @@ class Main(object):
             elif "debug_enabled" in key:
                 value = bool(value)
             setattr(self, key, value)
+            print value
         config.close()
 
         self.utils = Utils(main=self)
         self.commandMap = CommandMap(self)
-        self.commandMap.register_commands(self.default_commands)
-        self.active = True
+        self.commandMap.register_commands(self._default_commands)
+
+    @property
+    def get_port(self):
+        return self.port
+
+    @property
+    def is_running(self):
+        return self._running
 
     def stop(self):
-        self.active = False
+        self._running = False
