@@ -1,7 +1,8 @@
 from libpebble2.communication import PebbleConnection
-from libpebble2.protocol import *
-from serial import SerialException
 from libpebble2.exceptions import *
+from libpebble2.protocol import *
+from libpebble2.services.notifications import Notifications
+from serial import SerialException
 from commands import *
 from commands.defaults import *
 import logging
@@ -37,7 +38,9 @@ class Utils(object):
             track_length=track_length, track_count=track_count, current_track=current_track)
         ))
 
-    'TODO: Test notification'
+    def send_notification(self, subject, message, sender):
+        notification = Notifications(self.handler)
+        notification.send_notification(subject=subject, message=message, sender=sender)
 
     def update_time(self, utc_offset, tz_name):
         self.handler.send_packet(
@@ -51,6 +54,7 @@ class Main(object):
         HelpCommand,
         PingCommand,
         MusicTestCommand,
+        NotificationCommand,
         StopCommand,
         TimeCommand
     }

@@ -38,6 +38,19 @@ class MusicTestCommand(Command):
         self.utils.music_information("iksaku", "MusicTestCommand", "PebbleTools", (1*60 + 34)*1000, 15, 1)
 
 
+class NotificationCommand(Command):
+    def __init__(self, main):
+        super(NotificationCommand, self).__init__(main, "notification", "Sends a notification to your Pebble")
+
+    def run(self, args=list):
+        print "Let's build your notification! (Press Enter to leave field empty)"
+        sender = raw_input("\tPlease identify the 'Sender': ")
+        subject = raw_input("\tWhich is your 'Subject'? ")
+        message = raw_input("\tEnter your 'Message': ")
+        print "Sending your notification..."
+        self.utils.send_notification(sender=sender, subject=subject, message=message)
+
+
 class PingCommand(Command):
     def __init__(self, main):
         super(PingCommand, self).__init__(main, "ping", "Pings your Pebble watch")
