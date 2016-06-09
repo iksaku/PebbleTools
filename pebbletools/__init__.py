@@ -56,7 +56,7 @@ class Main(object):
     }
 
     def __init__(self):
-        options_file = "../options.conf"
+        options_file = "options.conf"
         if not os.path.isfile(options_file):
             config = open(options_file, "w")
             options = [
