@@ -1,12 +1,9 @@
 import abc
 
 
-class Command(object):
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, main, name, description, usage=""):
-        self.main = main
-        self.utils = main.utils
+class BaseCommand(object):
+    def __init__(self, utils, name, description, usage=""):
+        self.utils = utils
         self.name = name
         self.description = description
         self.usage = usage
@@ -19,24 +16,27 @@ class Command(object):
         return
 
 
-class CommandMap(object):
+class CommandManager(object):
+    commands = {}
+
     def __init__(self, main):
-        self.commands = {}
         self.main = main
 
     def register_command(self, command):
+        command = command(self.main.utils)
         self.commands[command.name] = command
 
     def register_commands(self, commands):
         for command in commands:
-            self.register_command(command(self.main))
+            self.register_command(command)
 
     def unregister_command(self, command):
-        del self.commands[command.name]
+        if command in self.commands:
+            del self.commands[command.name]
 
     def run_command(self, name, args=list):
         cmd = self.commands.get(name)
-        if isinstance(cmd, Command):
+        if isinstance(cmd, BaseCommand):
             cmd.run(args)
         else:
             print "Unknown command '" + name + "'"

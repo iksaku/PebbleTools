@@ -2,26 +2,28 @@ from libpebble2.communication import PebbleConnection
 from libpebble2.exceptions import *
 from libpebble2.protocol import *
 from libpebble2.services.notifications import Notifications
-from serial import SerialException
 from commands import *
 from commands.defaults import *
+from serial import SerialException
 import logging
+import time
 
 
 class Utils(object):
     handler = PebbleConnection
 
-    def __init__(self, transport, port, debug=False):
+    def __init__(self, main):
+        self.main = main
         try:
-            log = logging.DEBUG if debug else None
+            log = logging.DEBUG if self.main.debug_enabled else None
             self.handler = PebbleConnection(
-                transport=transport(port), log_protocol_level=log, log_packet_level=log)
+                transport=self.main.transport(self.main.get_port), log_protocol_level=log, log_packet_level=log)
 
             self.handler.connect()
             self.handler.run_async()
         except SerialException:
             print "Could not connect to Pebble via SerialTransport"
-            print "Trying on port '" + port + "'"
+            print "Trying on port '" + self.main.get_port + "'"
             exit(1)
 
     def do_ping(self):
@@ -47,8 +49,6 @@ class Utils(object):
 
 class Main(object):
     _running = True
-    port = ""
-    debug_enabled = False
     _default_commands = {
         HelpCommand,
         PingCommand,
@@ -57,6 +57,8 @@ class Main(object):
         StopCommand,
         TimeCommand
     }
+    port = ""
+    debug_enabled = False
 
     def __init__(self):
         options_file = "options.conf"
@@ -110,8 +112,8 @@ class Main(object):
                     self.debug_enabled = bool(value)
             config.close()
 
-        self.utils = Utils(transport=self.transport, port=self.get_port, debug=self.debug_enabled)
-        self.commandMap = CommandMap(self)
+        self.utils = Utils(main=self)
+        self.commandMap = CommandManager(main=self)
         self.commandMap.register_commands(self._default_commands)
 
     @property
