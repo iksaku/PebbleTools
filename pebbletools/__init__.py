@@ -1,9 +1,10 @@
-from libpebble2.communication import PebbleConnection
 from libpebble2.exceptions import *
 from libpebble2.protocol import *
 from libpebble2.services.notifications import Notifications
 from commands import *
 from commands.defaults import *
+from events import *
+from events.defaults import *
 from serial import SerialException
 import logging
 import time
@@ -56,6 +57,9 @@ class Main(object):
         NotificationCommand,
         StopCommand,
         TimeCommand
+    }
+    _default_events = {
+        MusicControllerEvent
     }
     port = ""
     debug_enabled = False
@@ -113,8 +117,10 @@ class Main(object):
             config.close()
 
         self.utils = Utils(main=self)
-        self.commandMap = CommandManager(main=self)
-        self.commandMap.register_commands(self._default_commands)
+        self.commandManager = CommandManager(main=self)
+        self.commandManager.register_commands(self._default_commands)
+        self.eventManager = EventManager(utils=self.utils)
+        self.eventManager.register_events(self._default_events)
 
     @property
     def get_port(self):
@@ -125,4 +131,6 @@ class Main(object):
         return self._running
 
     def stop(self):
+        for handler, event in self.eventManager.events:
+            self.eventManager.unregister_event(handler)
         self._running = False

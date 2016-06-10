@@ -8,7 +8,7 @@ class HelpCommand(BaseCommand):
 
     def run(self, args=list):
         message = []
-        commands = self.utils.main.commandMap.commands
+        commands = self.utils.main.commandManager.commands
         if isinstance(args, list) and isinstance(commands, dict):
             if len(args) > 0:
                 cmd_name = args.pop(0)

@@ -1,5 +1,4 @@
 # PebbleTools
-=
 
 This is a simple tool created to provide examples on how to work with your `Pebble Smartwatch` using some console commands.
 Current project is based on [libpebble2](https://github.com/pebble/libpebble2/) as an API for pairing and working directly with your Pebble Smartwatch.
@@ -9,16 +8,16 @@ Current project is based on [libpebble2](https://github.com/pebble/libpebble2/) 
 
 #### Warning: This tool is built on Python 2.7 (3.x version may come soon).
 
-1. Install `libpebble2`:
-`pip install libpebble2`
-Or grab it from source:
-```
-git clone https://github.com/pebble/libpebble2/
-python setup.py install
-```
+1. Install dependencies:
+    * We use `libpebble2` as base:
 
+        `pip install libpebble2`
+    *  We use `pypiwin32` as a wrapper to access Windows System's API
+
+        `pip install pypiwin32`
 2. Download `PebbleTools`:
-`git clone https://github.com/iksaku/PebbleTools.git`
+
+    `git clone https://github.com/iksaku/PebbleTools.git`
 
 ### Usage
 =
