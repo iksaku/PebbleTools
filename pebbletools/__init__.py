@@ -6,24 +6,22 @@ from serial import SerialException
 from commands import *
 from commands.defaults import *
 import logging
-import os.path
 
 
 class Utils(object):
     handler = PebbleConnection
 
-    def __init__(self, main):
-        self.main = main
+    def __init__(self, transport, port, debug=False):
         try:
-            log = logging.DEBUG if self.main.debug_enabled else None
+            log = logging.DEBUG if debug else None
             self.handler = PebbleConnection(
-                transport=self.main.transport(self.main.get_port), log_protocol_level=log, log_packet_level=log)
+                transport=transport(port), log_protocol_level=log, log_packet_level=log)
 
             self.handler.connect()
             self.handler.run_async()
         except SerialException:
-            print "Could not connect to Pebble"
-            print "Trying '" + str(type(self.main.transport)) + "' on port '" + self.main.port + "'"
+            print "Could not connect to Pebble via SerialTransport"
+            print "Trying on port '" + port + "'"
             exit(1)
 
     def do_ping(self):
@@ -62,36 +60,57 @@ class Main(object):
 
     def __init__(self):
         options_file = "options.conf"
-        if not os.path.isfile(options_file):
+        try:
+            config = open(options_file, "r")
+        except IOError:
             config = open(options_file, "w")
+            transport = raw_input(
+                "Please provide a Transport to connect your Pebble from: (Serial*, QEMU, Websocket) ").lower()
+            if "QEMU" in transport:
+                transport = "QEMU"
+            elif "Websocket" in transport:
+                transport = "Websocket"
+            else:
+                if not ("Serial" in transport):
+                    print "Unknown transport provided, using SerialTransport as default..."
+                transport = "Serial"
+            port = raw_input("What port do you wish to use? ")
+            debug_enabled = raw_input("Would you like to enable Debug logging? (y/N*) ")
+            if "y" in debug_enabled:
+                debug_enabled = "True"
+            else:
+                debug_enabled = "False"
             options = [
-                "transport: SerialTransport",
-                "port: COM4",
-                "debug_enabled: False"
+                "transport: " + transport,
+                "port: " + port,
+                "debug_enabled: " + debug_enabled
             ]
             config.write("\n".join(options))
             config.close()
-        config = open(options_file, "r")
-        for line in config:
-            if line[:1] == "#":
-                continue
-            key, value = line.replace(" ", "").replace("\n", "").split(":")
-            if "transport" in key:
-                if "QEMU" in value:
-                    from libpebble2.communication.transports.qemu import QemuTransport
-                    value = QemuTransport
-                elif "Websocket" in value:
-                    from libpebble2.communication.transports.websocket import WebsocketTransport
-                    value = WebsocketTransport
-                else:
-                    from libpebble2.communication.transports.serial import SerialTransport
-                    value = SerialTransport
-            elif "debug_enabled" in key:
-                value = bool(value)
-            setattr(self, key, value)
-        config.close()
+            config = open(options_file, "r")
+        finally:
+            for line in config:
+                if line[:1] == "#":
+                    continue
+                key, value = line.replace(" ", "").replace("\n", "").split(":")
+                if "transport" in key:
+                    if "QEMU" in value:
+                        from libpebble2.communication.transports.qemu import QemuTransport
+                        value = QemuTransport
+                    elif "Websocket" in value:
+                        from libpebble2.communication.transports.websocket import WebsocketTransport
+                        value = WebsocketTransport
+                    else:
+                        from libpebble2.communication.transports.serial import SerialTransport
+                        value = SerialTransport
+                    self.transport = value
+                elif "port" in key:
+                    self.port = value
+                elif "debug_enabled" in key:
+                    self.debug_enabled = bool(value)
+            config.close()
 
-        self.utils = Utils(main=self)
+        self.utils = Utils(transport=self.transport, port=self.get_port, debug=self.debug_enabled)
         self.commandMap = CommandMap(self)
         self.commandMap.register_commands(self._default_commands)
 
