@@ -13,14 +13,15 @@ class PowerpointControllerEvent(BaseEvent):
 
     def run(self, packet):
         if isinstance(packet, MusicControl):
-            if isinstance(packet.data, MusicControlNextTrack):
-                self.shell.SendKeys("{RIGHT}")
-            elif isinstance(packet.data, MusicControlPreviousTrack):
-                self.shell.SendKeys("{LEFT}")
-            elif isinstance(packet.data, MusicControlVolumeUp):
-                self.shell.SendKeys("{UP}")
-            elif isinstance(packet.data, MusicControlVolumeDown):
-                self.shell.SendKeys("{DOWN}")
-            elif isinstance(packet.data, MusicControlPlayPause):
-                self.in_presentation = not self.in_presentation
+            if isinstance(packet.data, MusicControlPlayPause):
                 self.shell.SendKeys("{ESC}" if self.in_presentation else "{F5}")
+                self.in_presentation = not self.in_presentation
+            elif self.in_presentation:
+                if isinstance(packet.data, MusicControlNextTrack):
+                    self.shell.SendKeys("{RIGHT}")
+                elif isinstance(packet.data, MusicControlPreviousTrack):
+                    self.shell.SendKeys("{LEFT}")
+                elif isinstance(packet.data, MusicControlVolumeUp):
+                    self.shell.SendKeys("{UP}")
+                elif isinstance(packet.data, MusicControlVolumeDown):
+                    self.shell.SendKeys("{DOWN}")
