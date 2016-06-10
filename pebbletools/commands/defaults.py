@@ -1,4 +1,5 @@
 from pebbletools.commands import BaseCommand
+from pebbletools.events.defaults import PowerpointControllerEvent
 import time
 
 
@@ -57,6 +58,28 @@ class PingCommand(BaseCommand):
 
     def run(self, args=list):
         self.utils.do_ping()
+
+
+class PowerpointCommand(BaseCommand):
+    handler = None
+
+    def __init__(self, utils):
+        super(PowerpointCommand, self).__init__(
+            utils, "powerpoint", "Control Powerpoint from Pebble's Music App", "<start|stop>")
+
+    def run(self, args=list):
+        if self.handler is None:
+            print "Now controlling Powerpoint from Pebble's Music App!"
+            print "Please open Powerpoint yourself if it does not starts automatically..."
+            self.handler = self.utils.main.eventManager.register_event(PowerpointControllerEvent)
+            # Send Information to Music App when ready
+            self.utils.music_information("PebbleTools", "By iksaku", "Powerpoint", 0, 1, 1)
+        else:
+            print "Leaving Powerpoint control..."
+            self.utils.main.eventManager.unregister_event(self.handler)
+            self.handler = None
+            # Clean Music App Information...
+            self.utils.music_information("", "", "", 0, 0, 0)
 
 
 class StopCommand(BaseCommand):

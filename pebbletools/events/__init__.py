@@ -27,7 +27,9 @@ class EventManager(object):
         self.utils = utils
 
     def register_event(self, event):
-        self.events[len(self.events)] = event(pebble=self.utils.handler)
+        handler = len(self.events)
+        self.events[handler] = event(pebble=self.utils.handler)
+        return handler
 
     def register_events(self, events):
         handlers = {}

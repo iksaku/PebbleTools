@@ -1,10 +1,26 @@
-from libpebble2.protocol import MusicControl
+from libpebble2.protocol.music import *
 from pebbletools.events import BaseEvent
+import win32com.client
 
 
-class MusicControllerEvent(BaseEvent):
+class PowerpointControllerEvent(BaseEvent):
+    in_presentation = False
+
     def __init__(self, pebble):
-        super(MusicControllerEvent, self).__init__(pebble, MusicControl)
+        super(PowerpointControllerEvent, self).__init__(pebble, MusicControl)
+        self.shell = win32com.client.Dispatch("WScript.Shell")
+        self.shell.AppActivate("PowerPoint")
 
     def run(self, packet):
-        print packet
+        if isinstance(packet, MusicControl):
+            if isinstance(packet.data, MusicControlNextTrack):
+                self.shell.SendKeys("{RIGHT}")
+            elif isinstance(packet.data, MusicControlPreviousTrack):
+                self.shell.SendKeys("{LEFT}")
+            elif isinstance(packet.data, MusicControlVolumeUp):
+                self.shell.SendKeys("{UP}")
+            elif isinstance(packet.data, MusicControlVolumeDown):
+                self.shell.SendKeys("{DOWN}")
+            elif isinstance(packet.data, MusicControlPlayPause):
+                self.in_presentation = not self.in_presentation
+                self.shell.SendKeys("{ESC}" if self.in_presentation else "{F5}")
