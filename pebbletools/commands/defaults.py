@@ -1,5 +1,5 @@
 from pebbletools.commands import BaseCommand
-from pebbletools.events.defaults import PowerpointControllerEvent
+from pebbletools.events.defaults import *
 import time
 
 
@@ -28,6 +28,26 @@ class HelpCommand(BaseCommand):
         if type(message) == list:
             message = message.pop(len(message) - 1) + "\n\t" + "\n\t".join(message)
         print message
+
+
+class ItunesCommand(BaseCommand):
+    handler = None
+
+    def __init__(self, utils):
+        super(ItunesCommand, self).__init__(utils, "itunes", "Control iTunes!")
+
+    def run(self, args=list):
+        if self.handler is None:
+            print "Now controlling iTunes from Pebble's Music App!"
+            self.handler = self.utils.main.eventManager.register_event(ItunesControllerEvent)
+            # Send Information to Music App when ready
+            self.utils.music_information("PebbleTools", "By iksaku", "iTunes", 0, 1, 1)
+        else:
+            print "Leaving iTunes control..."
+            self.utils.main.eventManager.unregister_event(self.handler)
+            self.handler = None
+            # Clean Music App Information...
+            self.utils.music_information("", "", "", 0, 0, 0)
 
 
 class MusicTestCommand(BaseCommand):
@@ -70,7 +90,6 @@ class PowerpointCommand(BaseCommand):
     def run(self, args=list):
         if self.handler is None:
             print "Now controlling Powerpoint from Pebble's Music App!"
-            print "Please open Powerpoint yourself if it does not starts automatically..."
             self.handler = self.utils.main.eventManager.register_event(PowerpointControllerEvent)
             # Send Information to Music App when ready
             self.utils.music_information("PebbleTools", "By iksaku", "Powerpoint", 0, 1, 1)

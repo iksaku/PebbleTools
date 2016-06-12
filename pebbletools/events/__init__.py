@@ -1,5 +1,6 @@
 from libpebble2.communication import PebbleConnection
 import abc
+import win32com.client
 
 
 class BaseEvent(object):
@@ -13,6 +14,17 @@ class BaseEvent(object):
 
     def unregister(self):
         self.pebble.unregister_endpoint(self.handler)
+
+    @abc.abstractmethod
+    def run(self, packet):
+        return
+
+
+class WindowsApplicationEvent(BaseEvent):
+    def __init__(self, pebble, endpoint, app):
+        super(WindowsApplicationEvent, self).__init__(pebble, endpoint)
+        self.shell = win32com.client.Dispatch("WScript.Shell")
+        self.shell.AppActivate(app)
 
     @abc.abstractmethod
     def run(self, packet):

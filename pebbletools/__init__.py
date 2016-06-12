@@ -51,6 +51,7 @@ class Main(object):
     _running = True
     _default_commands = {
         HelpCommand,
+        ItunesCommand,
         MusicTestCommand,
         NotificationCommand,
         PingCommand,
