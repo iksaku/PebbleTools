@@ -64,6 +64,7 @@ class Main(object):
 
     def __init__(self):
         options_file = "options.conf"
+        config = None
         try:
             config = open(options_file, "r")
         except IOError:
@@ -93,26 +94,27 @@ class Main(object):
             config.close()
             config = open(options_file, "r")
         finally:
-            for line in config:
-                if line[:1] == "#":
-                    continue
-                key, value = line.replace(" ", "").replace("\n", "").split(":")
-                if "transport" in key:
-                    if "QEMU" in value:
-                        from libpebble2.communication.transports.qemu import QemuTransport
-                        value = QemuTransport
-                    elif "Websocket" in value:
-                        from libpebble2.communication.transports.websocket import WebsocketTransport
-                        value = WebsocketTransport
-                    else:
-                        from libpebble2.communication.transports.serial import SerialTransport
-                        value = SerialTransport
-                    self.transport = value
-                elif "port" in key:
-                    self.port = value
-                elif "debug_enabled" in key:
-                    self.debug_enabled = bool(value)
-            config.close()
+            if config is not None:
+                for line in config:
+                    if line[:1] == "#":
+                        continue
+                    key, value = line.replace(" ", "").replace("\n", "").split(":")
+                    if "transport" in key:
+                        if "QEMU" in value:
+                            from libpebble2.communication.transports.qemu import QemuTransport
+                            value = QemuTransport
+                        elif "Websocket" in value:
+                            from libpebble2.communication.transports.websocket import WebsocketTransport
+                            value = WebsocketTransport
+                        else:
+                            from libpebble2.communication.transports.serial import SerialTransport
+                            value = SerialTransport
+                        self.transport = value
+                    elif "port" in key:
+                        self.port = value
+                    elif "debug_enabled" in key:
+                        self.debug_enabled = bool(value)
+                config.close()
 
         self.utils = Utils(main=self)
         self.commandManager = CommandManager(main=self)
